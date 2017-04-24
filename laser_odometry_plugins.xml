@@ -1,0 +1,9 @@
+<library path="lib/liblaser_odometry_libpointmatcher">
+
+  <class type="laser_odometry::LaserOdometryLibPointMatcher" base_class_type="laser_odometry::LaserOdometryBase">
+   <description>
+   Hello World !
+   </description>
+  </class>
+  
+</library>

@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>laser_odometry_libpointmatcher</name>
+  <version>0.0.0</version>
+  <description>The laser_odometry_libpointmatcher package</description>
+
+  <maintainer email="jeremie.deray@pal-robotics.com">Jeremie Deray</maintainer>
+  <license>TODO</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <depend>roscpp</depend>
+  <depend>laser_odometry_core</depend>
+  <depend>pointmatcher_ros</depend>
+  <depend>libpointmatcher</depend>
+  <!-- <depend>rosparam_handler</depend> -->
+  <!-- <depend>dynamic_reconfigure</depend> -->
+
+  <export>
+    <laser_odometry_core plugin="${prefix}/laser_odometry_plugins.xml" />
+  </export>
+</package>
