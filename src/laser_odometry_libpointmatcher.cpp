@@ -46,23 +46,25 @@ bool LaserOdometryLibPointMatcher::configureImpl()
   return true;
 }
 
-bool LaserOdometryLibPointMatcher::process(const sensor_msgs::PointCloud2ConstPtr cloud_ptr,
-                                        geometry_msgs::Pose2DPtr pose_ptr,
-                                        geometry_msgs::Pose2DPtr /*relative_pose_ptr*/)
+LaserOdometryBase::ProcessReport
+LaserOdometryLibPointMatcher::process(const sensor_msgs::PointCloud2ConstPtr& cloud_ptr,
+                                           geometry_msgs::Pose2DPtr pose_ptr,
+                                           geometry_msgs::Pose2DPtr /*relative_pose_ptr*/)
 {
   nav_msgs::OdometryPtr odom_ptr = boost::make_shared<nav_msgs::Odometry>();
 
-  bool processed = process(cloud_ptr, odom_ptr);
+  const auto process_report = process(cloud_ptr, odom_ptr);
 
   // Retrieve Odometry
   fillPose2DMsg(pose_ptr);
 
-  return processed;
+  return process_report;
 }
 
-bool LaserOdometryLibPointMatcher::process(const sensor_msgs::PointCloud2ConstPtr cloud_ptr,
-                                        nav_msgs::OdometryPtr odom_ptr,
-                                        nav_msgs::OdometryPtr /*relative_odom_ptr*/)
+LaserOdometryBase::ProcessReport
+LaserOdometryLibPointMatcher::process(const sensor_msgs::PointCloud2ConstPtr& cloud_ptr,
+                                           nav_msgs::OdometryPtr odom_ptr,
+                                           nav_msgs::OdometryPtr /*relative_odom_ptr*/)
 {
   assert(odom_ptr != nullptr &&
    "LaserOdometryLibPointMatcher::process OdometryPtr odom is nullptr!");
@@ -75,7 +77,7 @@ bool LaserOdometryLibPointMatcher::process(const sensor_msgs::PointCloud2ConstPt
 
     ROS_INFO_STREAM("LaserOdometryLibPointMatcher Initialized!");
 
-    return false;
+    return ProcessReport{true, false};
   }
 
   DataPointsPtr sourceDP;
@@ -114,7 +116,7 @@ bool LaserOdometryLibPointMatcher::process(const sensor_msgs::PointCloud2ConstPt
   catch (const Matcher::ConvergenceError& error)
   {
     ROS_ERROR_STREAM("ICP failed to converge: " << error.what());
-    return false;
+    return ProcessReport::ErrorReport();
   }
 
   tf::Transform corr_ch;
@@ -155,24 +157,25 @@ bool LaserOdometryLibPointMatcher::process(const sensor_msgs::PointCloud2ConstPt
     ROS_WARN("Error in scan matching");
   }
 
-  if (isKeyFrame(corr_ch))
+  const bool is_key_frame = isKeyFrame(corr_ch);
+  if (is_key_frame)
   {
     // generate a keyframe
     ref_cloud_        = sourceDP;
     world_to_base_kf_ = world_to_base_;
   }
 
-  return true;
+  return ProcessReport{true, is_key_frame};
 }
 
-void LaserOdometryLibPointMatcher::convert(const sensor_msgs::PointCloud2ConstPtr cloud_msg,
-                                        DataPointsPtr& lpm_scan)
+void LaserOdometryLibPointMatcher::convert(const sensor_msgs::PointCloud2ConstPtr& cloud_msg,
+                                           DataPointsPtr& lpm_scan)
 {
   lpm_scan = boost::make_shared<DataPoints>(
         PointMatcher_ros::rosMsgToPointMatcherCloud<double>(*cloud_msg) );
 }
 
-void LaserOdometryLibPointMatcher::initialize(const sensor_msgs::PointCloud2ConstPtr cloud_msg)
+void LaserOdometryLibPointMatcher::initialize(const sensor_msgs::PointCloud2ConstPtr& cloud_msg)
 {
   convert(cloud_msg, ref_cloud_);
 
@@ -183,10 +186,10 @@ void LaserOdometryLibPointMatcher::initialize(const sensor_msgs::PointCloud2Cons
 
 bool LaserOdometryLibPointMatcher::isKeyFrame(const tf::Transform& tf)
 {
-  if (fabs(tf::getYaw(tf.getRotation())) > kf_dist_angular_) return true;
+  if (std::abs(tf::getYaw(tf.getRotation())) > kf_dist_angular_) return true;
 
-  double x = tf.getOrigin().getX();
-  double y = tf.getOrigin().getY();
+  const double x = tf.getOrigin().getX();
+  const double y = tf.getOrigin().getY();
 
   if (x*x + y*y > kf_dist_linear_sq_) return true;
 
@@ -196,6 +199,13 @@ bool LaserOdometryLibPointMatcher::isKeyFrame(const tf::Transform& tf)
 tf::Transform LaserOdometryLibPointMatcher::predict(const tf::Transform& /*tf*/)
 {
   return guess_relative_tf_;
+}
+
+OdomType LaserOdometryLibPointMatcher::odomType() const
+{
+  /// @todo depending on the icp_->errorMinimizer->?
+  /// it is either 3D or 3DCov
+  return OdomType::Odom3D;
 }
 
 } /* namespace laser_odometry */

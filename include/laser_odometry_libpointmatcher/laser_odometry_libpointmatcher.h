@@ -22,13 +22,15 @@ namespace laser_odometry
     LaserOdometryLibPointMatcher()  = default;
     ~LaserOdometryLibPointMatcher() = default;
 
-    bool process(const sensor_msgs::PointCloud2ConstPtr cloud_ptr,
-                 geometry_msgs::Pose2DPtr pose_ptr,
-                 geometry_msgs::Pose2DPtr relative_pose_ptr = nullptr) override;
+    ProcessReport process(const sensor_msgs::PointCloud2ConstPtr& cloud_ptr,
+                          geometry_msgs::Pose2DPtr pose_ptr,
+                          geometry_msgs::Pose2DPtr relative_pose_ptr = nullptr) override;
 
-    bool process(const sensor_msgs::PointCloud2ConstPtr cloud_ptr,
-                 nav_msgs::OdometryPtr odom_ptr,
-                 nav_msgs::OdometryPtr relative_odom_ptr = nullptr) override;
+    ProcessReport process(const sensor_msgs::PointCloud2ConstPtr& cloud_ptr,
+                          nav_msgs::OdometryPtr odom_ptr,
+                          nav_msgs::OdometryPtr relative_odom_ptr = nullptr) override;
+
+    OdomType odomType() const override;
 
   protected:
 
@@ -51,14 +53,14 @@ namespace laser_odometry
 
     DataPointsPtr ref_cloud_;
 
-    void convert(const sensor_msgs::PointCloud2ConstPtr cloud_msg,
-                 DataPointsPtr &lpm_scan);
+    void convert(const sensor_msgs::PointCloud2ConstPtr& cloud_msg,
+                 DataPointsPtr& lpm_scan);
 
     bool configureImpl() override;
 
     tf::Transform predict(const tf::Transform& tf) override;
 
-    void initialize(const sensor_msgs::PointCloud2ConstPtr cloud_msg);
+    void initialize(const sensor_msgs::PointCloud2ConstPtr& cloud_msg);
     bool isKeyFrame(const tf::Transform& tf);
   };
 
