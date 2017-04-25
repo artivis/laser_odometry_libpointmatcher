@@ -61,7 +61,7 @@ namespace laser_odometry
     tf::Transform predict(const tf::Transform& tf) override;
 
     void initialize(const sensor_msgs::PointCloud2ConstPtr& cloud_msg);
-    bool isKeyFrame(const tf::Transform& tf);
+    bool isKeyFrame(const tf::Transform& tf) override;
   };
 
 } /* namespace laser_odometry */
