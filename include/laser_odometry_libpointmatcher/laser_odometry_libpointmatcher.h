@@ -22,19 +22,26 @@ namespace laser_odometry
     LaserOdometryLibPointMatcher()  = default;
     ~LaserOdometryLibPointMatcher() = default;
 
-    ProcessReport process(const sensor_msgs::PointCloud2ConstPtr& cloud_ptr,
-                          geometry_msgs::Pose2DPtr pose_ptr,
-                          geometry_msgs::Pose2DPtr relative_pose_ptr = nullptr) override;
+//    ProcessReport process(const sensor_msgs::PointCloud2ConstPtr& cloud_ptr,
+//                          geometry_msgs::Pose2DPtr pose_ptr,
+//                          geometry_msgs::Pose2DPtr relative_pose_ptr = nullptr) override;
 
-    ProcessReport process(const sensor_msgs::PointCloud2ConstPtr& cloud_ptr,
-                          nav_msgs::OdometryPtr odom_ptr,
-                          nav_msgs::OdometryPtr relative_odom_ptr = nullptr) override;
+//    ProcessReport process(const sensor_msgs::PointCloud2ConstPtr& cloud_ptr,
+//                          nav_msgs::OdometryPtr odom_ptr,
+//                          nav_msgs::OdometryPtr relative_odom_ptr = nullptr) override;
+
+  protected:
+
+    virtual bool process_impl(const sensor_msgs::PointCloud2ConstPtr& cloud_msg,
+                              const tf::Transform& prediction) override;
+
+    void isKeyFrame() override;
+
+  public:
 
     OdomType odomType() const override;
 
   protected:
-
-    bool initialized_ = false;
 
     double kf_dist_angular_;
     double kf_dist_linear_;
@@ -43,14 +50,12 @@ namespace laser_odometry
     double estimated_overlap_th_;
     double match_ratio_th_;
 
-    // pose of the last keyframe scan in fixed frame
-    tf::Transform world_to_base_kf_;
-
     Matcher::ICP icp_;
 
     Matcher::TransformationParameters transform_ =
         Matcher::TransformationParameters::Identity(4,4);
 
+    DataPointsPtr source_cloud_;
     DataPointsPtr ref_cloud_;
 
     void convert(const sensor_msgs::PointCloud2ConstPtr& cloud_msg,
@@ -58,9 +63,8 @@ namespace laser_odometry
 
     bool configureImpl() override;
 
-    tf::Transform predict(const tf::Transform& tf) override;
+    bool initialize(const sensor_msgs::PointCloud2ConstPtr& cloud_msg) override;
 
-    void initialize(const sensor_msgs::PointCloud2ConstPtr& cloud_msg);
     bool isKeyFrame(const tf::Transform& tf) override;
   };
 
