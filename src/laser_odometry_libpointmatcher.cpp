@@ -21,6 +21,7 @@ bool LaserOdometryLibPointMatcher::configureImpl()
     if (ifs.good())
     {
       icp_.loadFromYaml(ifs);
+      ROS_INFO_STREAM("Load config from YAML file " << icp_config);
     }
     else
     {
@@ -171,12 +172,20 @@ bool LaserOdometryLibPointMatcher::process_impl(const sensor_msgs::PointCloud2Co
                                                 const tf::Transform& prediction)
 {
   convert(cloud_msg, source_cloud_);
-  current_time_ = cloud_msg->header.stamp;
+
+  if (source_cloud_->features.cols() == 0)
+  {
+    ROS_ERROR("No good points in the cloud");
+    return false;
+  }
 
   Matcher::TransformationParameters initial_guess;
 
+  tf::Transform pred = prediction;
+  pred.setRotation( pred.getRotation().normalize() );
+
   Eigen::Affine3d tmp;
-  tf::transformTFToEigen(prediction, tmp);
+  tf::transformTFToEigen(pred, tmp);
 
   initial_guess = tmp.matrix();
 
@@ -198,7 +207,7 @@ bool LaserOdometryLibPointMatcher::process_impl(const sensor_msgs::PointCloud2Co
 
   if (icp_valid)
   {
-    correction_ = PointMatcher_ros::eigenMatrixToTransform<double>(transform);
+    correction_ = toTf(transform);
 
     const Matcher::Matrix cov = icp_.errorMinimizer->getCovariance();
 
@@ -219,7 +228,8 @@ bool LaserOdometryLibPointMatcher::process_impl(const sensor_msgs::PointCloud2Co
 
 void LaserOdometryLibPointMatcher::isKeyFrame()
 {
-  ref_cloud_ = source_cloud_;
+  //ref_cloud_ = source_cloud_;
+  std::swap(ref_cloud_, source_cloud_);
 }
 
 void LaserOdometryLibPointMatcher::convert(const sensor_msgs::PointCloud2ConstPtr& cloud_msg,

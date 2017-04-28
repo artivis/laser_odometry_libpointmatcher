@@ -5,6 +5,7 @@
 
 //PointMatcher library headers
 #include <pointmatcher_ros/point_cloud.h>
+#include <pointmatcher_ros/transform.h>
 
 namespace laser_odometry
 {
@@ -66,6 +67,11 @@ namespace laser_odometry
     bool initialize(const sensor_msgs::PointCloud2ConstPtr& cloud_msg) override;
 
     bool isKeyFrame(const tf::Transform& tf) override;
+
+    tf::Transform toTf(const Matcher::TransformationParameters& transform)
+    {
+      return PointMatcher_ros::eigenMatrixToTransform<double>(transform);
+    }
   };
 
 } /* namespace laser_odometry */
