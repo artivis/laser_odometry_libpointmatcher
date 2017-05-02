@@ -2,10 +2,20 @@
 <package format="2">
   <name>laser_odometry_libpointmatcher</name>
   <version>0.0.0</version>
-  <description>The laser_odometry_libpointmatcher package</description>
+  <description>
+    The laser_odometry_libpointmatcher package is a wrapper (a plugin)
+    to use libpointmatcher in the laser_odometry package.
+  </description>
 
+  <author email="jeremie.deray@pal-robotics.com">Jeremie Deray</author>
   <maintainer email="jeremie.deray@pal-robotics.com">Jeremie Deray</maintainer>
+
+  <!-- this package license -->
   <license>TODO</license>
+
+  <!-- libpointmatcher license -->
+  <license>BSD</license>
+  <url type="website">https://github.com/ethz-asl/libpointmatcher</url>
 
   <buildtool_depend>catkin</buildtool_depend>
 
