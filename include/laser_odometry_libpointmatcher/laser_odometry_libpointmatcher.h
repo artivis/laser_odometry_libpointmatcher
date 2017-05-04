@@ -40,7 +40,7 @@ namespace laser_odometry
 
   public:
 
-    OdomType odomType() const override;
+    OdomType odomType() const noexcept override;
 
   protected:
 

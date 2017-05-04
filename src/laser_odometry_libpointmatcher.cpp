@@ -260,7 +260,7 @@ bool LaserOdometryLibPointMatcher::isKeyFrame(const tf::Transform& tf)
   return false;
 }
 
-OdomType LaserOdometryLibPointMatcher::odomType() const
+OdomType LaserOdometryLibPointMatcher::odomType() const noexcept
 {
   /// @todo depending on the icp_->errorMinimizer->?
   /// it is either 3D or 3DCov
