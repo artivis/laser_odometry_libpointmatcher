@@ -21,7 +21,7 @@ else()
 endif()
 
 find_package(catkin REQUIRED COMPONENTS
-    laser_odometry_core pointmatcher_ros #rosparam_handler dynamic_reconfigure
+    laser_odometry_core pointmatcher_ros roscpp #rosparam_handler dynamic_reconfigure
 )
 
 find_package(libpointmatcher COMPONENTS pointmatcher REQUIRED)
@@ -29,7 +29,7 @@ find_package(libpointmatcher COMPONENTS pointmatcher REQUIRED)
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES ${PROJECT_NAME}
-  CATKIN_DEPENDS laser_odometry_core pointmatcher_ros #rosparam_handler dynamic_reconfigure 
+  CATKIN_DEPENDS laser_odometry_core pointmatcher_ros roscpp #rosparam_handler dynamic_reconfigure
   DEPENDS libpointmatcher
 )
 
