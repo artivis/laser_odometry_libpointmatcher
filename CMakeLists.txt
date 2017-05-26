@@ -3,12 +3,12 @@ project(laser_odometry_libpointmatcher)
 
 if(NOT CMAKE_BUILD_TYPE)
     set (CMAKE_BUILD_TYPE Release)
-endif(NOT CMAKE_BUILD_TYPE)
+endif()
 
 #Set compiler according C++11 support
 include(CheckCXXCompilerFlag)
-CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
-CHECK_CXX_COMPILER_FLAG("-std=c++0x" COMPILER_SUPPORTS_CXX0X)
+check_cxx_compiler_flag("-std=c++11" COMPILER_SUPPORTS_CXX11)
+check_cxx_compiler_flag("-std=c++0x" COMPILER_SUPPORTS_CXX0X)
 if(COMPILER_SUPPORTS_CXX11)
     message(STATUS "The compiler ${CMAKE_CXX_COMPILER} has C++11 support.")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
@@ -26,10 +26,6 @@ find_package(catkin REQUIRED COMPONENTS
 
 find_package(libpointmatcher COMPONENTS pointmatcher REQUIRED)
 
-#generate_ros_parameter_files(
-#  cfg/LaserOdometryCanonical.params
-#)
-
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES ${PROJECT_NAME}
@@ -39,16 +35,12 @@ catkin_package(
 
 include_directories(include ${catkin_INCLUDE_DIRS} ${libpointmatcher_INCLUDE_DIRS})
 
-
 ###############
 ##   Build   ##
 ###############
 
 add_library(${PROJECT_NAME} src/laser_odometry_libpointmatcher.cpp)
 target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES} ${libpointmatcher_INCLUDE_DIRS})
-#add_dependencies(${PROJECT_NAME} ${csm_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-#add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_gencfg) # For dynamic_reconfigure
-#add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_genparam) # For rosparam_handler
 
 ################
 ##  Install   ##
