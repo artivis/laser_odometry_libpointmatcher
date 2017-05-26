@@ -1,0 +1,57 @@
+<launch>
+
+  <!-- The laser odometry plugin type. -->
+  <arg name="laser_odometry_type" default="laser_odometry::LaserOdometryLibPointMatcher"/>
+
+  <!-- A config file for the laser odometry plugin. -->
+  <arg name="icp_config" default="$(find laser_odometry_libpointmatcher)/config/icp.yaml" />
+
+  <!-- Whether or not to broadcast the estimated odometry on tf. -->
+  <arg name="broadcast_tf" default="False"/>
+
+  <!-- Whether or not the retrieve the origin pose from tf. -->
+  <arg name="init_origin" default="False"/>
+
+  <!-- Whether to use a nav_msgs::Odometry message or a
+       geometry_msgs::Pose2D message. -->
+  <arg name="publish_odom" default="True"/>
+
+  <!-- Whether the sensor is fix wrt the base frame -->
+  <arg name="fixed_sensor" default="True"/>
+
+  <!-- The different tf frames -->
+  <arg name="laser_frame"      default="base_laser_link"/>
+  <arg name="base_frame"       default="base_link"/>
+  <arg name="world_frame"      default="map"/>
+
+  <!-- Frame in which the odom msg is published -->
+  <arg name="laser_odom_frame" default="odom"/>
+
+  <!-- Input topic -->
+  <arg name="scan_topic"       default="~scan_in"/>
+
+  <!-- Parameter for selecting a key-frame -->
+  <arg name="kf_dist_linear"   default="0.5"/>
+  <arg name="kf_dist_angular"  default="0.15"/>
+
+  <!-- Unused -->
+  <arg name="overlap_threshold" default="0.65"/>
+  <arg name="ratio_threshold"   default="0.65"/>
+
+  <node pkg="laser_odometry" type="laser_odometry_node" name="laser_odometry_node" output="screen">
+    <param name="laser_odometry_type" value="$(arg laser_odometry_type)" />
+    <param name="icp_config"          value="$(arg icp_config)"          />
+    <param name="broadcast_tf"        value="$(arg broadcast_tf)"        />
+    <param name="init_origin"         value="$(arg init_origin)"         />
+    <param name="publish_odom"        value="$(arg publish_odom)"        />
+    <param name="fixed_sensor"        value="$(arg fixed_sensor)"        />
+    <param name="laser_frame"         value="$(arg laser_frame)"         />
+    <param name="base_frame"          value="$(arg base_frame)"          />
+    <param name="world_frame"         value="$(arg world_frame)"         />
+    <param name="laser_odom_frame"    value="$(arg laser_odom_frame)"    />
+    <param name="kf_dist_linear"      value="$(arg kf_dist_linear)"      />
+    <param name="kf_dist_angular"     value="$(arg kf_dist_angular)"     />
+    <remap from="~scan_in"            to="$(arg scan_topic)"             />
+  </node>
+
+</launch>

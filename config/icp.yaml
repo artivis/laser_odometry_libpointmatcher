@@ -1,0 +1,77 @@
+readingDataPointsFilters:
+  - SimpleSensorNoiseDataPointsFilter
+  - MaxDistDataPointsFilter:
+      dim: -1
+      maxDist: 8
+  #- MinDistDataPointsFilter:
+      #dim: -1
+      #minDist: 0.3
+  #- RemoveNaNDataPointsFilter
+  #- SurfaceNormalDataPointsFilter:
+  #    knn: 10
+  #    keepDensities: 1
+  #- MaxDensityDataPointsFilter:
+  #    maxDensity: 8
+  - VoxelGridDataPointsFilter:
+      vSizeX: 0.15
+      vSizeY: 0.15
+      vSizeZ: 0.15
+  #- RandomSamplingDataPointsFilter:
+  #    prob: 0.35
+
+referenceDataPointsFilters:
+  - SimpleSensorNoiseDataPointsFilter
+  - MaxDistDataPointsFilter:
+      dim: -1
+      maxDist: 8
+  #- MinDistDataPointsFilter:
+      #dim: -1
+      #minDist: 0.3
+  #- RemoveNaNDataPointsFilter
+  #- SurfaceNormalDataPointsFilter:
+  #    knn: 10
+  #    keepDensities: 1
+  #- MaxDensityDataPointsFilter:
+  #    maxDensity: 8
+  - VoxelGridDataPointsFilter:
+      vSizeX: 0.15
+      vSizeY: 0.15
+      vSizeZ: 0.15
+  #- RandomSamplingDataPointsFilter:
+  #    prob: 0.35
+  - SamplingSurfaceNormalDataPointsFilter:
+      knn: 5
+
+matcher:
+  KDTreeMatcher:
+    maxDist: 0.5
+    knn: 1
+    epsilon: 1.0
+
+outlierFilters:
+  - TrimmedDistOutlierFilter:
+     ratio: 0.85
+#  - SurfaceNormalOutlierFilter:
+#     maxAngle: 0.42
+
+  #PointToPointWithCovErrorMinimizer
+errorMinimizer:
+  PointToPlaneWithCovErrorMinimizer
+
+transformationCheckers:
+  - DifferentialTransformationChecker:
+      minDiffRotErr: 0.001
+      minDiffTransErr: 0.01
+      smoothLength: 4
+  - CounterTransformationChecker:
+      maxIterationCount: 100
+  #- BoundTransformationChecker:
+      #maxRotationNorm: 0.80
+      #maxTranslationNorm: 5.00
+
+inspector:
+ NullInspector
+
+logger:
+  NullLogger
+#  FileLogger
