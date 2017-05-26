@@ -23,14 +23,6 @@ namespace laser_odometry
     LaserOdometryLibPointMatcher()  = default;
     ~LaserOdometryLibPointMatcher() = default;
 
-//    ProcessReport process(const sensor_msgs::PointCloud2ConstPtr& cloud_ptr,
-//                          geometry_msgs::Pose2DPtr pose_ptr,
-//                          geometry_msgs::Pose2DPtr relative_pose_ptr = nullptr) override;
-
-//    ProcessReport process(const sensor_msgs::PointCloud2ConstPtr& cloud_ptr,
-//                          nav_msgs::OdometryPtr odom_ptr,
-//                          nav_msgs::OdometryPtr relative_odom_ptr = nullptr) override;
-
   protected:
 
     virtual bool process_impl(const sensor_msgs::PointCloud2ConstPtr& cloud_msg,
