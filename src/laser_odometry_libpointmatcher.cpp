@@ -84,13 +84,13 @@ bool LaserOdometryLibPointMatcher::process_impl(const sensor_msgs::PointCloud2Co
 
   if (icp_valid)
   {
-    correction_ = toTf(transform);
+    increment_ = toTf(transform);
 
     const Matcher::Matrix cov = icp_.errorMinimizer->getCovariance();
 
     assert(cov.rows()==6 && cov.cols()==6);
 
-    covariance_ =
+    increment_covariance_ =
         boost::assign::list_of
           (cov(0, 0)) (cov(0, 1)) (cov(0, 2)) (cov(0, 3)) (cov(0, 4)) (cov(0, 5))
           (cov(1, 0)) (cov(1, 1)) (cov(1, 2)) (cov(1, 3)) (cov(1, 4)) (cov(1, 5))
