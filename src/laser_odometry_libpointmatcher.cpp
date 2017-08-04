@@ -37,20 +37,36 @@ bool LaserOdometryLibPointMatcher::configureImpl()
     icp_.setDefault();
   }
 
-  kf_dist_linear_       = private_nh_.param("dist_threshold",    0.5);
+  kf_dist_linear_       = private_nh_.param("dist_threshold",    0.25);
   kf_dist_angular_      = private_nh_.param("rot_threshold",     0.17);
-  estimated_overlap_th_ = private_nh_.param("overlap_threshold", 0.6);
+  estimated_overlap_th_ = private_nh_.param("overlap_threshold", 0.85);
   match_ratio_th_       = private_nh_.param("ratio_threshold",   0.65);
 
+  kf_dist_linear_sq_ = kf_dist_linear_*kf_dist_linear_;
+
   return true;
+}
+
+bool LaserOdometryLibPointMatcher::process_impl(const sensor_msgs::LaserScanConstPtr& scan_msg,
+                                                const tf::Transform& prediction)
+{
+  convert<sensor_msgs::LaserScan>(scan_msg, source_cloud_);
+
+  return icp(source_cloud_, prediction);
 }
 
 bool LaserOdometryLibPointMatcher::process_impl(const sensor_msgs::PointCloud2ConstPtr& cloud_msg,
                                                 const tf::Transform& prediction)
 {
-  convert(cloud_msg, source_cloud_);
+  convert<sensor_msgs::PointCloud2>(cloud_msg, source_cloud_);
 
-  if (source_cloud_->features.cols() == 0)
+  return icp(source_cloud_, prediction);
+}
+
+bool LaserOdometryLibPointMatcher::icp(const DataPointsPtr& src_cloud,
+                                       const tf::Transform& prediction)
+{
+  if (src_cloud->features.cols() == 0)
   {
     ROS_ERROR("No good points in the cloud");
     return false;
@@ -62,7 +78,7 @@ bool LaserOdometryLibPointMatcher::process_impl(const sensor_msgs::PointCloud2Co
   pred.setRotation( pred.getRotation().normalize() );
 
   Eigen::Affine3d tmp;
-  tf::transformTFToEigen(pred, tmp);
+  tf::transformTFToEigen(prediction, tmp);
 
   initial_guess = tmp.matrix();
 
@@ -72,7 +88,7 @@ bool LaserOdometryLibPointMatcher::process_impl(const sensor_msgs::PointCloud2Co
   Matcher::TransformationParameters transform;
   try
   {
-    transform = icp_(*source_cloud_, *ref_cloud_, initial_guess);
+    transform = icp_(*src_cloud, *ref_cloud_, initial_guess);
 
     icp_valid = true;
   }
@@ -86,18 +102,26 @@ bool LaserOdometryLibPointMatcher::process_impl(const sensor_msgs::PointCloud2Co
   {
     increment_ = toTf(transform);
 
+//    ROS_WARN_STREAM("transform :\n" << transform);
+//    utils::print(increment_, "increment\n", 25);
+
     const Matcher::Matrix cov = icp_.errorMinimizer->getCovariance();
 
     assert(cov.rows()==6 && cov.cols()==6);
 
-    increment_covariance_ =
-        boost::assign::list_of
-          (cov(0, 0)) (cov(0, 1)) (cov(0, 2)) (cov(0, 3)) (cov(0, 4)) (cov(0, 5))
-          (cov(1, 0)) (cov(1, 1)) (cov(1, 2)) (cov(1, 3)) (cov(1, 4)) (cov(1, 5))
-          (cov(2, 0)) (cov(2, 1)) (cov(2, 2)) (cov(2, 3)) (cov(2, 4)) (cov(2, 5))
-          (cov(3, 0)) (cov(3, 1)) (cov(3, 2)) (cov(3, 3)) (cov(3, 4)) (cov(3, 5))
-          (cov(4, 0)) (cov(4, 1)) (cov(4, 2)) (cov(4, 3)) (cov(4, 4)) (cov(4, 5))
-          (cov(5, 0)) (cov(5, 1)) (cov(5, 2)) (cov(5, 3)) (cov(5, 4)) (cov(5, 5));
+//    increment_covariance_ =
+//        boost::assign::list_of
+//          (cov(0, 0)) (cov(0, 1)) (cov(0, 2)) (cov(0, 3)) (cov(0, 4)) (cov(0, 5))
+//          (cov(1, 0)) (cov(1, 1)) (cov(1, 2)) (cov(1, 3)) (cov(1, 4)) (cov(1, 5))
+//          (cov(2, 0)) (cov(2, 1)) (cov(2, 2)) (cov(2, 3)) (cov(2, 4)) (cov(2, 5))
+//          (cov(3, 0)) (cov(3, 1)) (cov(3, 2)) (cov(3, 3)) (cov(3, 4)) (cov(3, 5))
+//          (cov(4, 0)) (cov(4, 1)) (cov(4, 2)) (cov(4, 3)) (cov(4, 4)) (cov(4, 5))
+//          (cov(5, 0)) (cov(5, 1)) (cov(5, 2)) (cov(5, 3)) (cov(5, 4)) (cov(5, 5));
+  }
+  else
+  {
+    increment_.setIdentity();
+    ROS_WARN("libpointmatcher could not align scans.");
   }
 
   return true;
@@ -108,16 +132,30 @@ void LaserOdometryLibPointMatcher::isKeyFrame()
   std::swap(ref_cloud_, source_cloud_);
 }
 
-void LaserOdometryLibPointMatcher::convert(const sensor_msgs::PointCloud2ConstPtr& cloud_msg,
-                                           DataPointsPtr& lpm_scan)
+bool LaserOdometryLibPointMatcher::initialize(const sensor_msgs::LaserScanConstPtr& scan_msg)
 {
-  lpm_scan = boost::make_shared<DataPoints>(
-        PointMatcher_ros::rosMsgToPointMatcherCloud<double>(*cloud_msg) );
+  convert<sensor_msgs::LaserScan>(scan_msg, ref_cloud_);
+
+  if (ref_cloud_->features.cols() == 0)
+  {
+    ROS_ERROR("initialize: No good points in the cloud");
+    return false;
+  }
+
+  current_time_ = scan_msg->header.stamp;
+
+  return true;
 }
 
 bool LaserOdometryLibPointMatcher::initialize(const sensor_msgs::PointCloud2ConstPtr& cloud_msg)
 {
-  convert(cloud_msg, ref_cloud_);
+  convert<sensor_msgs::PointCloud2>(cloud_msg, ref_cloud_);
+
+  if (ref_cloud_->features.cols() == 0)
+  {
+    ROS_ERROR("initialize: No good points in the cloud");
+    return false;
+  }
 
   current_time_ = cloud_msg->header.stamp;
 
@@ -130,8 +168,11 @@ bool LaserOdometryLibPointMatcher::isKeyFrame(const tf::Transform& tf)
 
   const double x = tf.getOrigin().getX();
   const double y = tf.getOrigin().getY();
+  const double z = tf.getOrigin().getZ();
 
-  if (x*x + y*y > kf_dist_linear_sq_) return true;
+  if ( (x*x + y*y + z*z) > kf_dist_linear_sq_ ) return true;
+
+  if (icp_.errorMinimizer->getOverlap() < estimated_overlap_th_) return true;
 
   return false;
 }

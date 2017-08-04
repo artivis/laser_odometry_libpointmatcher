@@ -25,8 +25,14 @@ namespace laser_odometry
 
   protected:
 
-    virtual bool process_impl(const sensor_msgs::PointCloud2ConstPtr& cloud_msg,
-                              const tf::Transform& prediction) override;
+    bool process_impl(const sensor_msgs::LaserScanConstPtr& scan_msg,
+                      const tf::Transform& prediction) override;
+
+    bool process_impl(const sensor_msgs::PointCloud2ConstPtr& cloud_msg,
+                      const tf::Transform& prediction) override;
+
+    bool icp(const DataPointsPtr& src_cloud,
+             const tf::Transform& prediction);
 
     void isKeyFrame() override;
 
@@ -51,10 +57,13 @@ namespace laser_odometry
     DataPointsPtr source_cloud_;
     DataPointsPtr ref_cloud_;
 
-    void convert(const sensor_msgs::PointCloud2ConstPtr& cloud_msg,
+    template <class Msg>
+    void convert(const typename Msg::ConstPtr& msg,
                  DataPointsPtr& lpm_scan);
 
     bool configureImpl() override;
+
+    bool initialize(const sensor_msgs::LaserScanConstPtr& scan_msg) override;
 
     bool initialize(const sensor_msgs::PointCloud2ConstPtr& cloud_msg) override;
 
@@ -65,6 +74,26 @@ namespace laser_odometry
       return PointMatcher_ros::eigenMatrixToTransform<double>(transform);
     }
   };
+
+  template <>
+  void LaserOdometryLibPointMatcher::
+  convert<sensor_msgs::LaserScan>(const sensor_msgs::LaserScan::ConstPtr& msg,
+                                  DataPointsPtr& lpm_scan)
+  {
+    constexpr bool force_3d = true;
+
+    lpm_scan = boost::make_shared<DataPoints>(
+          PointMatcher_ros::rosMsgToPointMatcherCloud<double>(*msg, nullptr, "", force_3d) );
+  }
+
+  template <>
+  void LaserOdometryLibPointMatcher::
+  convert<sensor_msgs::PointCloud2>(const sensor_msgs::PointCloud2::ConstPtr& msg,
+                                    DataPointsPtr& lpm_scan)
+  {
+    lpm_scan = boost::make_shared<DataPoints>(
+          PointMatcher_ros::rosMsgToPointMatcherCloud<double>(*msg) );
+  }
 
 } /* namespace laser_odometry */
 
