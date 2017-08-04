@@ -129,7 +129,8 @@ bool LaserOdometryLibPointMatcher::icp(const DataPointsPtr& src_cloud,
 
 void LaserOdometryLibPointMatcher::isKeyFrame()
 {
-  std::swap(ref_cloud_, source_cloud_);
+//  std::swap(ref_cloud_, source_cloud_);
+  Matcher::swapDataPoints(*ref_cloud_, *source_cloud_);
 }
 
 bool LaserOdometryLibPointMatcher::initialize(const sensor_msgs::LaserScanConstPtr& scan_msg)
