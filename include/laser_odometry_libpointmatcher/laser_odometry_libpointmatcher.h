@@ -14,7 +14,8 @@ namespace laser_odometry
   {
     using Base = LaserOdometryBase;
 
-    using Matcher = PointMatcher<double>;
+    using Scalar = double;
+    using Matcher = PointMatcher<Scalar>;
     using DataPoints = Matcher::DataPoints;
     using DataPointsPtr = boost::shared_ptr<DataPoints>;
 
@@ -42,12 +43,11 @@ namespace laser_odometry
 
   protected:
 
-    double kf_dist_angular_;
-    double kf_dist_linear_;
-    double kf_dist_linear_sq_;
+    Scalar kf_dist_angular_;
+    Scalar kf_dist_linear_sq_;
 
-    double estimated_overlap_th_;
-    double match_ratio_th_;
+    Scalar estimated_overlap_th_;
+    Scalar match_ratio_th_;
 
     Matcher::ICP icp_;
 

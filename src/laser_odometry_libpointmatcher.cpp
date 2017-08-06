@@ -37,12 +37,13 @@ bool LaserOdometryLibPointMatcher::configureImpl()
     icp_.setDefault();
   }
 
-  kf_dist_linear_       = private_nh_.param("dist_threshold",    0.25);
+  Scalar kf_dist_linear;
+  kf_dist_linear        = private_nh_.param("dist_threshold",    0.25);
   kf_dist_angular_      = private_nh_.param("rot_threshold",     0.17);
   estimated_overlap_th_ = private_nh_.param("overlap_threshold", 0.85);
   match_ratio_th_       = private_nh_.param("ratio_threshold",   0.65);
 
-  kf_dist_linear_sq_ = kf_dist_linear_*kf_dist_linear_;
+  kf_dist_linear_sq_ = kf_dist_linear * kf_dist_linear;
 
   return true;
 }
@@ -84,7 +85,7 @@ bool LaserOdometryLibPointMatcher::icp(const DataPointsPtr& src_cloud,
 
   bool icp_valid = false;
 
-  //Call ICP
+  // Call ICP
   Matcher::TransformationParameters transform;
   try
   {
@@ -129,6 +130,7 @@ bool LaserOdometryLibPointMatcher::icp(const DataPointsPtr& src_cloud,
 
 void LaserOdometryLibPointMatcher::isKeyFrame()
 {
+  /// @todo what's best?
 //  std::swap(ref_cloud_, source_cloud_);
   Matcher::swapDataPoints(*ref_cloud_, *source_cloud_);
 }
@@ -167,9 +169,9 @@ bool LaserOdometryLibPointMatcher::isKeyFrame(const tf::Transform& tf)
 {
   if (std::abs(tf::getYaw(tf.getRotation())) > kf_dist_angular_) return true;
 
-  const double x = tf.getOrigin().getX();
-  const double y = tf.getOrigin().getY();
-  const double z = tf.getOrigin().getZ();
+  const Scalar x = tf.getOrigin().getX();
+  const Scalar y = tf.getOrigin().getY();
+  const Scalar z = tf.getOrigin().getZ();
 
   if ( (x*x + y*y + z*z) > kf_dist_linear_sq_ ) return true;
 
@@ -180,9 +182,10 @@ bool LaserOdometryLibPointMatcher::isKeyFrame(const tf::Transform& tf)
 
 OdomType LaserOdometryLibPointMatcher::odomType() const noexcept
 {
-  /// @todo depending on the icp_->errorMinimizer->?
-  /// it is either 3D or 3DCov
-  return OdomType::Odom3D;
+  /// @todo @note depending on the icp_->errorMinimizer
+  /// the returned covariance is either an actual covariance
+  /// or identity.
+  return OdomType::Odom3DCov;
 }
 
 } /* namespace laser_odometry */
