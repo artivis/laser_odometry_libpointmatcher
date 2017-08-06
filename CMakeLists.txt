@@ -1,27 +1,16 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(laser_odometry_libpointmatcher)
 
-if(NOT CMAKE_BUILD_TYPE)
-    set (CMAKE_BUILD_TYPE Release)
-endif()
-
-#Set compiler according C++11 support
-include(CheckCXXCompilerFlag)
-check_cxx_compiler_flag("-std=c++11" COMPILER_SUPPORTS_CXX11)
-check_cxx_compiler_flag("-std=c++0x" COMPILER_SUPPORTS_CXX0X)
-if(COMPILER_SUPPORTS_CXX11)
-    message(STATUS "The compiler ${CMAKE_CXX_COMPILER} has C++11 support.")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-elseif(COMPILER_SUPPORTS_CXX0X)
-    message(STATUS "The compiler ${CMAKE_CXX_COMPILER} has C++0x support.")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
-else()
-    message(STATUS "The compiler ${CMAKE_CXX_COMPILER} has no C++11 support.
-            Please use a different C++ compiler.")
-endif()
+# Set compiler according C++11 support
+# Default for the CXX_STANDARD target property
+set(CMAKE_CXX_STANDARD 11)
+# Prevent fallback behaviour to anterior version
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+# Avoid linking to a different library
+set(CMAKE_CXX_EXTENSIONS OFF)
 
 find_package(catkin REQUIRED COMPONENTS
-    laser_odometry_core pointmatcher_ros roscpp #rosparam_handler dynamic_reconfigure
+    laser_odometry_core roscpp tf_conversions #rosparam_handler dynamic_reconfigure
 )
 
 find_package(libpointmatcher COMPONENTS pointmatcher REQUIRED)
@@ -29,7 +18,7 @@ find_package(libpointmatcher COMPONENTS pointmatcher REQUIRED)
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES ${PROJECT_NAME}
-  CATKIN_DEPENDS laser_odometry_core pointmatcher_ros roscpp #rosparam_handler dynamic_reconfigure
+  CATKIN_DEPENDS laser_odometry_core roscpp tf_conversions #rosparam_handler dynamic_reconfigure
   DEPENDS libpointmatcher
 )
 
@@ -39,7 +28,7 @@ include_directories(include ${catkin_INCLUDE_DIRS} ${libpointmatcher_INCLUDE_DIR
 ##   Build   ##
 ###############
 
-add_library(${PROJECT_NAME} src/laser_odometry_libpointmatcher.cpp)
+add_library(${PROJECT_NAME} src/laser_odometry_libpointmatcher.cpp src/conversion.cpp)
 target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES} ${libpointmatcher_INCLUDE_DIRS})
 
 ################

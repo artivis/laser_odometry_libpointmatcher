@@ -2,8 +2,8 @@
 
 #include <laser_odometry_core/laser_odometry_utils.h>
 #include <laser_odometry_libpointmatcher/laser_odometry_libpointmatcher.h>
+#include <laser_odometry_libpointmatcher/conversion.h>
 
-#include <pointmatcher_ros/transform.h>
 #include <tf_conversions/tf_eigen.h>
 
 #include <fstream>
@@ -101,7 +101,7 @@ bool LaserOdometryLibPointMatcher::icp(const DataPointsPtr& src_cloud,
 
   if (icp_valid)
   {
-    increment_ = toTf(transform);
+    increment_ = conversion::toRos<Scalar>(transform);
 
 //    ROS_WARN_STREAM("transform :\n" << transform);
 //    utils::print(increment_, "increment\n", 25);

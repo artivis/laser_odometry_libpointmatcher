@@ -2,10 +2,7 @@
 #define _LASER_ODOMETRY_LIBPOINTMATCHER_LASER_ODOMETRY_LIBPOINTMATCHER_H_
 
 #include <laser_odometry_core/laser_odometry_core.h>
-
-//PointMatcher library headers
-#include <pointmatcher_ros/point_cloud.h>
-#include <pointmatcher_ros/transform.h>
+#include <laser_odometry_libpointmatcher/conversion.h>
 
 namespace laser_odometry
 {
@@ -59,7 +56,10 @@ namespace laser_odometry
 
     template <class Msg>
     void convert(const typename Msg::ConstPtr& msg,
-                 DataPointsPtr& lpm_scan);
+                 DataPointsPtr& lpm_scan)
+    {
+      lpm_scan = boost::make_shared<DataPoints>(conversion::fromRos<Scalar>(*msg));
+    }
 
     bool configureImpl() override;
 
@@ -68,32 +68,7 @@ namespace laser_odometry
     bool initialize(const sensor_msgs::PointCloud2ConstPtr& cloud_msg) override;
 
     bool isKeyFrame(const tf::Transform& tf) override;
-
-    tf::Transform toTf(const Matcher::TransformationParameters& transform)
-    {
-      return PointMatcher_ros::eigenMatrixToTransform<double>(transform);
-    }
   };
-
-  template <>
-  void LaserOdometryLibPointMatcher::
-  convert<sensor_msgs::LaserScan>(const sensor_msgs::LaserScan::ConstPtr& msg,
-                                  DataPointsPtr& lpm_scan)
-  {
-    constexpr bool force_3d = true;
-
-    lpm_scan = boost::make_shared<DataPoints>(
-          PointMatcher_ros::rosMsgToPointMatcherCloud<double>(*msg, nullptr, "", force_3d) );
-  }
-
-  template <>
-  void LaserOdometryLibPointMatcher::
-  convert<sensor_msgs::PointCloud2>(const sensor_msgs::PointCloud2::ConstPtr& msg,
-                                    DataPointsPtr& lpm_scan)
-  {
-    lpm_scan = boost::make_shared<DataPoints>(
-          PointMatcher_ros::rosMsgToPointMatcherCloud<double>(*msg) );
-  }
 
 } /* namespace laser_odometry */
 
