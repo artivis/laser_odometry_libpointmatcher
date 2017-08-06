@@ -66,7 +66,7 @@ typename PointMatcher<T>::DataPoints fromRos(const sensor_msgs::PointCloud2& ros
   Labels descLabels;
   std::vector<bool> isFeature;
 
-  for (auto it(rosMsg.fields.begin()); it != rosMsg.fields.end(); ++it)
+  for (auto it = rosMsg.fields.begin(); it != rosMsg.fields.end(); ++it)
   {
     const std::string name(it->name);
     const std::size_t count(std::max<std::size_t>(it->count, 1));
@@ -116,7 +116,7 @@ typename PointMatcher<T>::DataPoints fromRos(const sensor_msgs::PointCloud2& ros
   // method just after the *reinterpret_cast
   typedef sensor_msgs::PointField PF;
   size_t fieldId = 0;
-  for(auto it(rosMsg.fields.begin()); it != rosMsg.fields.end(); ++it, ++fieldId)
+  for (auto it = rosMsg.fields.begin(); it != rosMsg.fields.end(); ++it, ++fieldId)
   {
     if (it->name == "rgb" || it->name == "rgba")
     {
@@ -143,8 +143,7 @@ typename PointMatcher<T>::DataPoints fromRos(const sensor_msgs::PointCloud2& ros
           view(1, ptId) = colorG;
           view(2, ptId) = colorB;
 
-          if (view.rows() > 3)
-            view(3, ptId) = colorA;
+          if (view.rows() > 3) view(3, ptId) = colorA;
 
           dataPtr += rosMsg.point_step;
           ptId += 1;
@@ -225,7 +224,7 @@ typename PointMatcher<T>::DataPoints fromRos(const sensor_msgs::LaserScan& rosMs
     descLabels.emplace_back("intensity", 1);
     assert(rosMsg.intensities.size() == rosMsg.ranges.size());
   }
-  if(addTimestamps)
+  if (addTimestamps)
   {
     descLabels.emplace_back("timestamp", 3);
   }
@@ -257,8 +256,8 @@ typename PointMatcher<T>::DataPoints fromRos(const sensor_msgs::LaserScan& rosMs
 
   ids.resize(goodCount);
   ranges.resize(goodCount);
-  if(!rosMsg.intensities.empty())
-    intensities.resize(goodCount);
+
+  if (!rosMsg.intensities.empty()) intensities.resize(goodCount);
 
   DataPoints cloud(featLabels, descLabels, goodCount);
   cloud.getFeatureViewByName("pad").setConstant(1);
@@ -279,7 +278,7 @@ typename PointMatcher<T>::DataPoints fromRos(const sensor_msgs::LaserScan& rosMs
   // fill descriptors
   if (!rosMsg.intensities.empty())
   {
-    auto is(cloud.getDescriptorViewByName("intensity"));
+    auto is = cloud.getDescriptorViewByName("intensity");
     for (size_t i = 0; i < intensities.size(); ++i)
     {
       is(0,i) = intensities[i];
@@ -288,7 +287,7 @@ typename PointMatcher<T>::DataPoints fromRos(const sensor_msgs::LaserScan& rosMs
 
   if (addTimestamps)
   {
-    auto is(cloud.getDescriptorViewByName("timestamp"));
+    auto is = cloud.getDescriptorViewByName("timestamp");
 
     for (size_t i = 0; i < ranges.size(); ++i)
     {
