@@ -29,7 +29,7 @@ include_directories(include ${catkin_INCLUDE_DIRS} ${libpointmatcher_INCLUDE_DIR
 ###############
 
 add_library(${PROJECT_NAME} src/laser_odometry_libpointmatcher.cpp src/conversion.cpp)
-target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES} ${libpointmatcher_INCLUDE_DIRS})
+target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES} ${libpointmatcher_LIBRARIES})
 
 ################
 ##  Install   ##
