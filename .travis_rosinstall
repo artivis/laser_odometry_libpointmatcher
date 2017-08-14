@@ -1,2 +1,1 @@
-- git: {local-name: laser_odometry, uri: 'https://github.com/artivis/laser_odometry', version: indigo-devel}
-- git: {local-name: pointmatcher-ros, uri: 'https://github.com/ethz-asl/pointmatcher-ros', version: master}
+- git: {local-name: laser_odometry, uri: 'https://github.com/artivis/laser_odometry', version: master}
