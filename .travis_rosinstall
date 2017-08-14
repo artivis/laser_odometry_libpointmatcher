@@ -1,1 +1,3 @@
 - git: {local-name: laser_odometry, uri: 'https://github.com/artivis/laser_odometry', version: master}
+- git: {local-name: libnabo, uri: 'https://github.com/ethz-asl/libnabo', version: master}
+- git: {local-name: libpointmatcher, uri: 'https://github.com/ethz-asl/libpointmatcher', version: master}
