@@ -19,10 +19,10 @@
 
   <buildtool_depend>catkin</buildtool_depend>
 
-  <depend>roscpp</depend>
-  <depend>tf_conversions</depend>
   <depend>laser_odometry_core</depend>
   <depend>libpointmatcher</depend>
+  <depend>roscpp</depend>
+  <depend>tf_conversions</depend>
   <!-- <depend>rosparam_handler</depend> -->
   <!-- <depend>dynamic_reconfigure</depend> -->
 

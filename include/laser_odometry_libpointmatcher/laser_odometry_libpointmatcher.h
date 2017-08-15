@@ -24,13 +24,13 @@ namespace laser_odometry
   protected:
 
     bool process_impl(const sensor_msgs::LaserScanConstPtr& scan_msg,
-                      const tf::Transform& prediction) override;
+                      const Transform& prediction) override;
 
     bool process_impl(const sensor_msgs::PointCloud2ConstPtr& cloud_msg,
-                      const tf::Transform& prediction) override;
+                      const Transform& prediction) override;
 
     bool icp(const DataPointsPtr& src_cloud,
-             const tf::Transform& prediction);
+             const Transform& prediction);
 
     void isKeyFrame() override;
 
@@ -67,7 +67,7 @@ namespace laser_odometry
 
     bool initialize(const sensor_msgs::PointCloud2ConstPtr& cloud_msg) override;
 
-    bool isKeyFrame(const tf::Transform& tf) override;
+    bool isKeyFrame(const Transform& tf) override;
   };
 
 } /* namespace laser_odometry */
