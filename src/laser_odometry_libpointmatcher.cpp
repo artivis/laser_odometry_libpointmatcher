@@ -47,16 +47,16 @@ bool LaserOdometryLibPointMatcher::configureImpl()
   return true;
 }
 
-bool LaserOdometryLibPointMatcher::process_impl(const sensor_msgs::LaserScanConstPtr& scan_msg,
-                                                const Transform& prediction)
+bool LaserOdometryLibPointMatcher::processImpl(const sensor_msgs::LaserScanConstPtr& scan_msg,
+                                               const Transform& prediction)
 {
   convert<sensor_msgs::LaserScan>(scan_msg, source_cloud_);
 
   return icp(source_cloud_, prediction);
 }
 
-bool LaserOdometryLibPointMatcher::process_impl(const sensor_msgs::PointCloud2ConstPtr& cloud_msg,
-                                                const Transform& prediction)
+bool LaserOdometryLibPointMatcher::processImpl(const sensor_msgs::PointCloud2ConstPtr& cloud_msg,
+                                               const Transform& prediction)
 {
   convert<sensor_msgs::PointCloud2>(cloud_msg, source_cloud_);
 

@@ -23,11 +23,11 @@ namespace laser_odometry
 
   protected:
 
-    bool process_impl(const sensor_msgs::LaserScanConstPtr& scan_msg,
-                      const Transform& prediction) override;
+    bool processImpl(const sensor_msgs::LaserScanConstPtr& scan_msg,
+                     const Transform& prediction) override;
 
-    bool process_impl(const sensor_msgs::PointCloud2ConstPtr& cloud_msg,
-                      const Transform& prediction) override;
+    bool processImpl(const sensor_msgs::PointCloud2ConstPtr& cloud_msg,
+                     const Transform& prediction) override;
 
     bool icp(const DataPointsPtr& src_cloud,
              const Transform& prediction);
