@@ -11,20 +11,23 @@ namespace laser_odometry {
 
 bool LaserOdometryLibPointMatcher::configureImpl()
 {
-  if (private_nh_.hasParam("icp_config"))
-  {
-    std::string icp_config;
-    private_nh_.getParam("icp_config", icp_config);
+  std::string libpointmatcher_config_name;
+  private_nh_.searchParam("libpointmatcher_config", libpointmatcher_config_name);
 
-    std::ifstream ifs(icp_config.c_str());
+  if (private_nh_.hasParam(libpointmatcher_config_name))
+  {
+    std::string libpointmatcher_config;
+    private_nh_.getParam(libpointmatcher_config_name, libpointmatcher_config);
+
+    std::ifstream ifs(libpointmatcher_config.c_str());
     if (ifs.good())
     {
       icp_.loadFromYaml(ifs);
-      ROS_INFO_STREAM("Load config from YAML file " << icp_config);
+      ROS_INFO_STREAM("Load config from YAML file " << libpointmatcher_config);
     }
     else
     {
-      ROS_ERROR_STREAM("Cannot load config from YAML file " << icp_config);
+      ROS_ERROR_STREAM("Cannot load config from YAML file " << libpointmatcher_config);
       icp_.setDefault();
     }
 

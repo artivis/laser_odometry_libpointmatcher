@@ -17,7 +17,9 @@
     <arg name="laser_odometry_type" value="laser_odometry::LaserOdometryLibPointMatcher"/>
     <arg name="node_config_file" value="$(arg node_config_file)"/>
     <arg name="topic_in" value="$(arg topic_in)" />
-    <param name="icp_config" value="$(arg icp_config)"
+<!--    <rosparam param="icp_config" subst_value="True">$(arg icp_config)</rosparam>-->
   </include>
+
+  <rosparam param="libpointmatcher_config" subst_value="True">$(arg icp_config)</rosparam>
 
 </launch>
